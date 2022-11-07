@@ -11,6 +11,8 @@
 /81/*
 !/81/_build
 
+!/81/_build/src
+
 .idea
 src
 
