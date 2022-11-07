@@ -1,0 +1,69 @@
+#!/bin/bash
+
+echo '------------------------------------------'
+echo '------ Starting HTTPS Configuration ------'
+echo '------------------------------------------'
+
+CONTAINER_DB=$(docker ps --format '{{.Names}}' | grep -i "db")
+#CONTAINER_WEB=$(docker ps --format '{{.Names}}' | grep -i "apache")
+
+### DB ###
+DB_NAME=$(awk '$1=="\047dbname\047"{print $3}' src/app/etc/env.php | sed -e 's/,//g' | sed -e "s/'//g")
+if test -z "$DB_NAME"
+then
+  echo "DB name not found in src/app/etc/env.php file."
+  read -p 'Enter name of Database you would like to use?: ' DB_NAME
+else
+
+  read -p "Magento is using database: ${DB_NAME}. Would you like to continue with this DB?" -n 1 -r
+  if [[ $REPLY =~ ^[Nn]$ ]]
+  then
+    echo ""
+    read -p 'Enter name of Database you would like to use?: ' DB_NAME
+  fi
+  echo ""
+
+fi
+### DB ###
+
+### Check Brew ###
+if ! command -v brew &> /dev/null
+then
+  echo "    Brew not found, Please install Brew before proceeding ..."
+  exit 0;
+fi
+### Check Brew ###
+
+### Check/Create SSL Directory ###
+if [ ! -d "src/ssl" ]
+then
+  echo "    Create SSL Directory in Src folder."
+  $(mkdir src/ssl)
+fi
+
+### Check/Install MKCert & Create Certificate ###
+if ! command -v mkcert &> /dev/null
+then
+  echo "    MKCert not found. MKCert is required. Starting installation ... "
+  $(brew install mkcert)
+else
+  echo "    mkcert found, starting certificate creation ... "
+fi
+
+read -p 'Enter the domain you wish to create a certificate for? (e.g: drinksco.net): ' DOMAIN
+mkcert "${DOMAIN}"
+mv ./"${DOMAIN}.pem" src/ssl
+mv ./"${DOMAIN}-key.pem" src/ssl
+echo "    Updating sites-enable/magento.conf file ..."
+# TO-DO Update magento.conf file
+
+echo "    Certificates Created!"
+echo "    Updating .htaccess file in src/ directory ..."
+DB_RESULT=$(docker exec -i "$CONTAINER_DB" mysql -uroot -proot $DB_NAME -e "SELECT distinct CONCAT('\nSetEnvIf Host ^',REPLACE(REPLACE(REPLACE(REPLACE(value,'http://',''),'https://',''),'/',''),'.','\\.'), ' MAGE_RUN_CODE=',store_website.code) as '', CONCAT('\nSetEnvIf Host ^',REPLACE(REPLACE(REPLACE(REPLACE(value,'http://',''),'https://',''),'/',''),'.','\\.'), ' MAGE_RUN_TYPE=website') as '' FROM core_config_data LEFT JOIN store_website on store_website.website_id = core_config_data.scope_id WHERE path like 'web/%secure%/base_url' and value is not null and code != 'admin'")
+rm src/.htaccess
+cp src/.htaccess.sample src/.htaccess
+echo -en $DB_RESULT >> src/.htaccess
+
+echo '------------------------------------------'
+echo ' --------- DONE HTTPS CONFIGURED -------- '
+echo '------------------------------------------'
