@@ -42,7 +42,7 @@ return array(
                     'default' =>
                         array(
                             'host' => 'db',
-                            'dbname' => 'magento',
+                            'dbname' => 'magento_db',
                             'username' => 'magento',
                             'password' => 'magento',
                             'active' => '1',
