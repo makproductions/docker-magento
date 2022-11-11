@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
+docker-sync start && \
 docker-compose up -d && \
-version=$(git describe --tags $(git rev-list --tags --max-count=1))
 echo "
 ===================== 🚀 Done 🚀 ===================
 
-      Created by Rafael Corrêa Gomes
-      v.$version
+      Created by Muhammad Mian
       Access your new links:
 
       🌎 Web server: http://localhost/
       ⚙️ PHPMyAdmin: http://localhost:8080
       ✉️ Local emails: http://localhost:8025
+      ⚙️ Elasticsearch: http://localhost:9200
 
 ===================== 🚀 Done 🚀 ==================="
