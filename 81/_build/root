@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-if [ -z "$1" ]
-  then
-    docker-compose exec --user root apache bash
-else
-    docker-compose exec --user $@ apache bash
-fi

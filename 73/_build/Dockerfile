@@ -1,4 +1,5 @@
-FROM php:7.4-apache
+#FROM --platform=linux/x86_64 php:7.3-apache #M1
+FROM php:7.3.33-apache
 
 MAINTAINER Muhammad Ali Mian <muhammadmian.com>
 
@@ -6,20 +7,22 @@ ENV XDEBUG_PORT 9000
 
 # Install System Dependencies
 
+RUN apt-get update
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+	software-properties-common
+
 RUN apt-get update \
-	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-	software-properties-common \
-	&& apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
+	libzip-dev \
 	libfreetype6-dev \
 	libicu-dev \
-  libssl-dev \
+    libssl-dev \
 	libjpeg62-turbo-dev \
+	libmcrypt-dev \
 	libedit-dev \
 	libedit2 \
-    libzip-dev \
 	libxslt1-dev \
-    libonig-dev \
 	apt-utils \
 	gnupg \
 	redis-tools \
@@ -46,11 +49,14 @@ RUN docker-php-ext-configure \
   	bcmath \
   	intl \
   	mbstring \
+#  	mcrypt \
   	pdo_mysql \
-    sockets \
   	soap \
   	xsl \
   	zip
+
+RUN pecl install mcrypt-1.0.2 && \
+        docker-php-ext-enable mcrypt
 
 # Install oAuth
 
@@ -63,12 +69,11 @@ RUN apt-get update \
   	&& echo "extension=oauth.so" > /usr/local/etc/php/conf.d/docker-php-ext-oauth.ini
 
 # Install Node, NVM, NPM and Grunt
-
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-  	&& apt-get update  \
-    && apt-get install -y nodejs npm build-essential \
-    && curl https://raw.githubusercontent.com/creationix/nvm/v0.16.1/install.sh | sh \
-    && npm i -g grunt-cli yarn
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get update
+RUN apt-get install -y nodejs build-essential
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | sh \
+    && npm i -g gulp grunt-cli yarn
 
 # Install Composer
 
@@ -76,27 +81,12 @@ RUN	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Install Code Sniffer
 
-RUN git clone https://github.com/magento/marketplace-eqp.git ~/.composer/vendor/magento/marketplace-eqp
-RUN cd ~/.composer/vendor/magento/marketplace-eqp && composer install
-RUN ln -s ~/.composer/vendor/magento/marketplace-eqp/vendor/bin/phpcs /usr/local/bin;
-
 ENV PATH="/var/www/.composer/vendor/bin/:${PATH}"
 
 # Install XDebug
 
-RUN yes | pecl install xdebug && \
+RUN yes | pecl install xdebug-2.9.6 && \
 	 echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.iniOLD
-
-RUN docker-php-ext-enable xdebug \
-    && echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.max_nesting_level=9999" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Install Mhsendmail
 
@@ -111,10 +101,13 @@ RUN wget https://files.magerun.net/n98-magerun2.phar \
 	&& chmod +x ./n98-magerun2.phar \
 	&& mv ./n98-magerun2.phar /usr/local/bin/
 
-# Configuring system
+# User & password of magento 2 api account (https://devdocs.magento.com/guides/v2.0/install-gde/prereq/connect-auth.html)
+COPY .docker/users/auth.json  /var/www/.composer/
 
+# Configuring system
 ADD .docker/config/php.ini /usr/local/etc/php/php.ini
-#ADD .docker/apache/magento.conf /etc/apache2/sites-available/magento.conf
+ADD .docker/apache/magento.conf /etc/apache2/sites-available/magento.conf
+ADD .docker/config/custom-xdebug.ini /usr/local/etc/php/conf.d/custom-xdebug.ini
 COPY .docker/bin/* /usr/local/bin/
 COPY .docker/users/* /var/www/
 RUN chmod +x /usr/local/bin/*
@@ -124,6 +117,8 @@ RUN curl -o /etc/bash_completion.d/m2install-bash-completion https://raw.githubu
 RUN curl -o /etc/bash_completion.d/n98-magerun2.phar.bash https://raw.githubusercontent.com/netz98/n98-magerun2/master/res/autocompletion/bash/n98-magerun2.phar.bash
 RUN echo "source /etc/bash_completion" >> /root/.bashrc
 RUN echo "source /etc/bash_completion" >> /var/www/.bashrc
+# Remove Node Entry in bash profile
+RUN sed -i -e "s/alias node='nodejs'//g" /var/www/.bashrc
 
 RUN chmod 777 -Rf /var/www /var/www/.* \
 	&& chown -Rf www-data:www-data /var/www /var/www/.* \

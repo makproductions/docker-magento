@@ -11,7 +11,6 @@ RUN apt-get update \
 	software-properties-common \
 	&& apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    netstats \
 	libfreetype6-dev \
 	libicu-dev \
     libssl-dev \
@@ -110,6 +109,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install golang-go \
 RUN wget https://files.magerun.net/n98-magerun2.phar \
 	&& chmod +x ./n98-magerun2.phar \
 	&& mv ./n98-magerun2.phar /usr/local/bin/
+
+# User & password of magento 2 api account (https://devdocs.magento.com/guides/v2.0/install-gde/prereq/connect-auth.html)
+COPY .docker/users/auth.json  /var/www/.composer/
 
 # Configuring system
 

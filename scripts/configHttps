@@ -59,7 +59,7 @@ echo "    Updating sites-enable/magento.conf file ..."
 
 echo "    Certificates Created!"
 echo "    Updating .htaccess file in src/ directory ..."
-DB_RESULT=$(docker exec -i "$CONTAINER_DB" mysql -uroot -proot $DB_NAME -e "SELECT distinct CONCAT('\nSetEnvIf Host ^',REPLACE(REPLACE(REPLACE(REPLACE(value,'http://',''),'https://',''),'/',''),'.','\\.'), ' MAGE_RUN_CODE=',store_website.code) as '', CONCAT('\nSetEnvIf Host ^',REPLACE(REPLACE(REPLACE(REPLACE(value,'http://',''),'https://',''),'/',''),'.','\\.'), ' MAGE_RUN_TYPE=website') as '' FROM core_config_data LEFT JOIN store_website on store_website.website_id = core_config_data.scope_id WHERE path like 'web/%secure%/base_url' and value is not null and code != 'admin'")
+DB_RESULT=$(docker exec -i "$CONTAINER_DB" mysql -uroot -proot $DB_NAME -e "SELECT distinct CONCAT('\nSetEnvIf Host ^',REPLACE(REPLACE(REPLACE(REPLACE(value,'http://',''),'https://',''),'/',''),'.','\\.'), ' MAGE_RUN_CODE=',store_website.code) as '', CONCAT('\nSetEnvIf Host ^',REPLACE(REPLACE(REPLACE(REPLACE(value,'http://',''),'https://',''),'/',''),'.','\\.'), ' MAGE_RUN_TYPE=website') as '' FROM core_config_data LEFT JOIN store_website on store_website.website_id = core_config_data.scope_id WHERE path like 'web/%secure%/base_url' and value is not null")
 rm src/.htaccess
 cp src/.htaccess.sample src/.htaccess
 echo -en $DB_RESULT >> src/.htaccess
