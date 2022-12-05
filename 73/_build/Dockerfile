@@ -1,4 +1,7 @@
-#FROM --platform=linux/x86_64 php:7.3-apache #M1
+## USE FOR MAC M1
+#FROM --platform=linux/x86_64 php:7.3-apache
+## USE FOR MAC M1
+
 FROM php:7.3.33-apache
 
 MAINTAINER Muhammad Ali Mian <muhammadmian.com>
@@ -55,7 +58,7 @@ RUN docker-php-ext-configure \
   	xsl \
   	zip
 
-RUN pecl install mcrypt-1.0.2 && \
+RUN pecl install mcrypt-1.0.4 && \
         docker-php-ext-enable mcrypt
 
 # Install oAuth
@@ -127,6 +130,10 @@ RUN chmod 777 -Rf /var/www /var/www/.* \
 	&& a2enmod rewrite \
 	&& a2enmod headers \
     && a2enmod ssl
+
+## USE FOR M1 MAC
+#RUN echo "Mutex posixsem" >> /etc/apache2/apache2.conf
+## USE FOR M1 MAC
 
 VOLUME /var/www/html
 WORKDIR /var/www/html

@@ -15,11 +15,21 @@ To set up shortcut scripts you have 2 options:
 `ROOTFOLDER_main-network`
 ---
 ## New Project Configuration
+### 1. Build Generic containers
+This setup shares containers for the following services between all php containers:
+- DB (mariadb)
+- elasticsearch
+- phpmyadmin
+- redis
+- redis-session
+- mailhog
 
-### 1. Setup Project Folder
+1. Run the `start` script in the root folder to launch shared containers. 
+
+### 2. Setup Project Folder
 1. Copy `_build` folder and paste it with your project name  
 
-### 2. Configure Docker-sync
+### 3. Configure Docker-sync
 1. Update all instances of docker volume name:
    1. docker-compose.yml
    2. docker-sync.yml
