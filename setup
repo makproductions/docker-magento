@@ -3,3 +3,6 @@
 CURRENT=`pwd`
 CURRENT="$CURRENT/scripts"
 echo "$CURRENT" >> /etc/paths
+
+echo "===================== 🚀 Done 🚀 ==================="
+echo "Please CLOSE your terminal & open it again to start a new session."

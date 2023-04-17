@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 
-### PHP 7.3 Xdebug Config ###
-VERSION=$(grep -c "7.3-apache" docker-compose.yml)
-if [[ $VERSION -eq "1" ]]; then
-  echo "Configuring Xdebug for php7.3"
-  sudo ifconfig lo0 alias 10.254.254.254
+if [[ -f "docker-sync.yml" ]]
+then
+  # START PHP 7.3 Xdebug Config #
+  VERSION=$(grep -c "7.3-apache" docker-compose.yml)
+  if [[ $VERSION -eq "1" ]]; then
+    echo "Configuring Xdebug for php7.3"
+    sudo ifconfig lo0 alias 10.254.254.254
+  fi
+  # END PHP 7.3 Xdebug Config ###
+
+  docker-sync start
 fi
-### PHP 7.3 Xdebug Config ###
 
 docker-compose up -d
-if [ $? -eq 0 ]; then
-  docker-sync start
-else
-  # On new projects, sync volume doesnt exist, so need to create one first
-  docker-sync start && \
-  docker-compose up -d
-fi
+
 echo "
 ===================== 🚀 Done 🚀 ===================
 

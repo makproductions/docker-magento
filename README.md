@@ -5,18 +5,13 @@
 - Docker-sync (https://docker-sync.readthedocs.io/en/latest/)
 
 ## First Time Setup
-#### Shortcut Scripts (/scripts)
-To set up shortcut scripts you have 2 options:
-1. Run `setup` bash file as sudo user : `sudo ./setup`
-2. Create a symbolic link for every new project : `ln -s ../../scripts /run`
+#### 1. Shortcut Scripts (/scripts)
+To set up shortcut scripts as global:  
+Run the setup bash file as sudo user : `sudo ./setup`
 
-#### Network
-4. Rename your network in `docker-compose.yml` file to reflect the following format:
-`ROOTFOLDER_main-network`
----
-## New Project Configuration
-### 1. Build Generic containers
-This setup shares containers for the following services between all php containers:
+#### 2. Build Generic containers
+Run the `start` script in the root folder to launch shared containers.
+The following containers are shared between all php containers:
 - DB (mariadb)
 - elasticsearch
 - phpmyadmin
@@ -24,22 +19,45 @@ This setup shares containers for the following services between all php containe
 - redis-session
 - mailhog
 
-1. Run the `start` script in the root folder to launch shared containers. 
+---
+## Project Setup 
 
-### 2. Setup Project Folder
-1. Copy `_build` folder and paste it with your project name  
+### 1. Project Folder
+1. Duplicate `_build` folder with a new name in the same directory (73 or 81).    
 
-### 3. Configure Docker-sync
-1. Update all instances of docker volume name:
+### 2. Configure Docker-sync
+1. Update all instances of docker-sync volume name in the following files:
    1. docker-compose.yml
    2. docker-sync.yml
    3. docker-compose-dev.yml
 
 Always use a unique name for each project appended by `-sync`.     
-E.g:  
-`_build-sync` >> `demo-sync`
+E.g: `_build-sync` >> `demo-sync`
 
-### 2. Start Container
-### 3. Composer Update
-1. Create a new composer.json file
+### 3. Network
+Rename network in `docker-compose.yml` file in your project, to reflect the following format:
+`{ROOTFOLDER}_main-network`
+
+> **Hint**: You can run `docker network ls` to find the full name of your `{ROOTFOLDER}_main-network`
+
+### 4. Starting Container
 2. Run `composer update` command
+
+---
+### Shortcut Script commands
+
+| Commands      | Description                                                                                            | Options & Examples |
+|---------------|--------------------------------------------------------------------------------------------------------|-------------------|
+| `start`       | Start the container in your current project directory                                                  | `start`           |
+| `stop`        | Stop the containers in your current project directory                                                  | `stop`            |
+| `shell`       | Access your container as www-data user                                                                 | `shell`       | |
+| `root`        | Access your container as Root user                                                                     | `root`            | |
+| `dbimport`    | Predefined Script to import a new Database. A db.sql file must exist in your project directory         | `root`            | |
+| `configHttps` | Setup SSL Certificates, Maps DB URL's to .htaccess file for website scope                              | `root`            | |
+| `kill`        | Stops containers and removes containers, networks, volumes, and images created to the specific project |                   |
+| `magento`     | Use the power of the Magento CLI                                                                       |                   |
+| `n98`         | Use the Magerun commands as you want                                                                   |                   |
+| `grunt-init`  | Prepare to use Grunt                                                                                   |                   |
+| `grunt`       | Use Grunt specifically in your theme or completely, it'll do the deploy and the watcher.               | `grunt luma`      |
+| `xdebug`      | Enable / Disable the XDebug                                                                            |                   |
+| `composer`    | Use Composer commands                                                                                  | `composer update` |
