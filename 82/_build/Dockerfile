@@ -65,12 +65,11 @@ RUN apt-get update \
   	&& pecl install oauth \
   	&& echo "extension=oauth.so" > /usr/local/etc/php/conf.d/docker-php-ext-oauth.ini
 
-# Install Node, NVM, NPM and Grunt
+# Install Node.js and Grunt
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
   	&& apt-get update  \
     && apt-get install -y nodejs npm build-essential \
-    && curl https://raw.githubusercontent.com/creationix/nvm/v0.16.1/install.sh | sh \
     && npm i -g grunt-cli yarn
 
 # Install Composer
@@ -97,12 +96,10 @@ RUN docker-php-ext-enable xdebug \
     && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.max_nesting_level=9999" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
-# Install Mhsendmail
+# Install mhsendmail
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install golang-go \
-   && mkdir /opt/go \
-   && export GOPATH=/opt/go \
-   && go get github.com/mailhog/mhsendmail
+RUN curl -L -o /usr/local/bin/mhsendmail https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 \
+    && chmod +x /usr/local/bin/mhsendmail
 
 # Install Magerun 2
 
