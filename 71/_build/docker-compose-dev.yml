@@ -1,0 +1,8 @@
+version: "2"
+services:
+  apache:
+    volumes:
+      - _build-sync:/var/www/html:nocopy
+volumes:
+  _build-sync:
+    external: true

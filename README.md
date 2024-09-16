@@ -10,7 +10,7 @@ To set up shortcut scripts as global:
 Run the setup bash file as sudo user : `sudo ./setup`
 
 #### 2. Build Generic containers
-Run the `start` script in the root folder to launch shared containers.
+Run the `start` script in the root directory of the project to launch **shared** containers.
 The following containers are shared between all php containers:
 - DB (mariadb)
 - elasticsearch

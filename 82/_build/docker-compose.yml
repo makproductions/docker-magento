@@ -1,0 +1,29 @@
+version: '3.6'
+services:
+  apache:
+    image: php:8.2-apache
+    build: .
+    ports:
+      - "80:80" # web
+      - "443:443" # web secure
+      - "9001:9000" # xdebug
+      # - "35729:35729" # live reload
+    volumes:
+      - _build-sync:/var/www/html:nocopy
+      - ./.docker/apache:/etc/apache2/sites-enabled
+      - ~/.composer:/var/www/.composer
+      - ~/.npm:/var/www/.npm
+      # - ~/.nvm:/var/www/.nvm
+    environment:
+      XDEBUG_CONFIG: "remote_host=localhost"
+      PHP_IDE_CONFIG: "serverName=Docker"
+    networks:
+      - pr_main-network
+
+networks:
+  pr_main-network:
+    external: true
+
+volumes:
+  _build-sync:
+    external: true
