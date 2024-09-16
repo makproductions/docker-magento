@@ -1,8 +1,8 @@
 FROM php:8.2-apache
 
-MAINTAINER Muhammad Ali Mian <muhammadmian.com>
+LABEL maintainer="Muhammad Ali Mian <muhammadmian.com>"
 
-ENV XDEBUG_PORT 9000
+ENV XDEBUG_PORT=9000
 
 # Install System Dependencies
 
@@ -68,8 +68,7 @@ RUN apt-get update \
 # Install Node.js and Grunt
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-  	&& apt-get update  \
-    && apt-get install -y nodejs npm build-essential \
+    && apt-get install -y nodejs build-essential \
     && npm i -g grunt-cli yarn
 
 # Install Composer
