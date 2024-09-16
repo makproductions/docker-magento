@@ -2,7 +2,7 @@ version: "2"
 services:
   apache:
     volumes:
-      - _build-sync:/var/www/html:nocopy
+      - _build82-sync-sync:/var/www/html:nocopy
 volumes:
-  _build-sync:
+  _build82-sync-sync:
     external: true

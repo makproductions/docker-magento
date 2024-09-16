@@ -2,7 +2,7 @@ version: "2"
 options:
   verbose: true
 syncs:
-  _build-sync:
+  _build82-sync-sync:
     sync_userid: '1000'
     sync_strategy: 'native_osx'
     host_disk_mount_mode: 'cached'
